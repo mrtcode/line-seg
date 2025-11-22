@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Line-Type Layout Segmentation Demo (ONNX WebAssembly)</title>
+	<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/ort.min.js"></script>
+	<script src="inference.js"></script>
+</head>
+<body>
+  <h1>Check the console log</h1>
+
+  <script type="text/javascript">
+    async function loadJson() {
+      try {
+        const response = await fetch('./input.json');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('Failed to load input.json:', error);
+        return null;
+      }
+    }
+
+    async function main() {
+      let pages = await loadJson();
+	  console.log('This demo has precomputed vectors for all lines in the following PDF: https://bitcoin.org/bitcoin.pdf');
+	  console.log('Input pages: ', pages);
+	  let pageBlocks = [];
+	  for (let page of pages) {
+		  let blocks = await window.inference(page.vectors, page.lines);
+		  pageBlocks.push(blocks);
+	  }
+
+	  console.log('Output pages: ', pageBlocks);
+    }
+
+    window.addEventListener('load', () => {
+      main();
+    });
+  </script>
+</body>
+</html>
